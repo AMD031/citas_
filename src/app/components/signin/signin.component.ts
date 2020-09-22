@@ -18,10 +18,21 @@ export class SigninComponent implements OnInit {
   async signIn(){
      try {
         let data = await this.login.GoogleLogin();
+
+        const {credential} = data;
+        const  {idToken}   =  credential     
         const {user} = data;
         const {uid, displayName} = user;
-        
-        console.log('usuario:', uid, 'nombre:', displayName);
+        //console.log(data);
+        //console.log('usuario:', uid, 'nombre:', displayName , "token", idToken);
+
+        localStorage.setItem("uid", uid);
+        localStorage.setItem("unombre", displayName);
+
+         if(user){
+            this.router.navigate(['/calendario']);
+         }
+
      } catch (error) {
         console.log(error);
      }
