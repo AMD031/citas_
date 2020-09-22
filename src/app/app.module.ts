@@ -9,9 +9,13 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
-
-
-
+import { FullCalendarModule } from '@fullcalendar/angular'; 
+import dayGridPlugin from '@fullcalendar/daygrid'; 
+import interactionPlugin from '@fullcalendar/interaction'
+FullCalendarModule.registerPlugins([ 
+  dayGridPlugin,
+  interactionPlugin
+]);
 
 @NgModule({
   declarations: [
@@ -25,8 +29,11 @@ import { environment } from '../environments/environment';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,
+    FullCalendarModule
+    
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
+
 export class AppModule { }

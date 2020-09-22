@@ -20,6 +20,7 @@ export class SigninComponent implements OnInit {
         let data = await this.login.GoogleLogin();
         const {user} = data;
         const {uid, displayName} = user;
+        
         console.log('usuario:', uid, 'nombre:', displayName);
      } catch (error) {
         console.log(error);
