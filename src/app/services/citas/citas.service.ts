@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { data } from 'jquery';
 import { throwError } from 'rxjs';
 import { Cita } from 'src/app/components/model/cita';
 
@@ -39,28 +38,38 @@ export class CitasService {
   }
 
 
-  cargarCitas(){
-
+  cargarCitas():Promise<Array<any>> {
 
     const uid = localStorage.getItem('uid');
     const snap = this.firestore.collection(`citas/${uid}/cita`).get();
-    let citas:Array<any> = [];
-    snap.forEach(
-      (hijo) => {
-         const data = hijo.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        
-        citas.push(...data);
-      })
-  
-      return citas;
+
+    return new Promise((resolve, rejects) => {
       
+      snap.pipe().forEach(
+        (hijo) => {
+          const citas = hijo.docs.map((doc) => (
+            { ...doc.data(), id: doc.id }
+          ));
+          resolve(citas);
+
+          if(!citas){
+              rejects([])
+          }
+
+        })
+
       
+
+    })
+
+
+
+
+
+
+
+
   }
-
-
 
 
 
