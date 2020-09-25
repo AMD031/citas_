@@ -22,8 +22,35 @@
     <button mat-button (click)="onNoClick()">Get Food</button>
     <button mat-button [mat-dialog-close]="data.city" cdkFocusInitial>Get City</button>
 </div> -->
-<div mat-dialog-actions>
-    <button color="primary" mat-raised-button (click)="obtenerHora('8:00')">8:00</button>
-    <button color="primary" mat-raised-button (click)="obtenerHora('9:00')">9:00</button>
-    <button color="primary" mat-raised-button (click)="obtenerHora('10:00')">10:00</button>
+
+<div class="alert alert-primary" role="alert">
+    Elija su cita, por favor.
+  </div>
+<div mat-dialog-actions mat-button>
+
+ 
+  <button
+     *ngIf="mostrar[0]"
+    color="primary"
+    mat-raised-button
+    (click)="obtenerHora('8:00')"
+  >
+    8:00
+  </button>
+  <button
+    *ngIf="mostrar[1]"
+    color="primary"
+    mat-raised-button
+    (click)="obtenerHora('9:00')"
+  >
+    9:00
+  </button>
+  <button
+    *ngIf="mostrar[2]"
+    color="primary"
+    mat-raised-button
+    (click)="obtenerHora('10:00')"
+  >
+    10:00
+  </button>
 </div>

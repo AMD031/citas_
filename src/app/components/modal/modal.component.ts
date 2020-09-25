@@ -1,31 +1,53 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CitasService } from 'src/app/services/citas/citas.service';
 
 @Component({
   selector: 'app-my-modal',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.css']
 })
-
 export class ModalComponent {
-  
- food: string;
 
+  //  food: string;
+
+  
+  fecha: string;
+  mostrar: boolean[] = [];
   constructor(
     public dialogRef: MatDialogRef<ModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+    @Inject(MAT_DIALOG_DATA) public data: any, private crud: CitasService) {
+    this.fecha = data.fecha;
+     console.log(this.fecha);
+    this.arrayCitas().then(
+      (array) => {
+        this.mostrar = array;
+      }
+    )
+  }
 
-    // onNoClick(): void {
-    //   this.dialogRef.close({
-    //     food: this.food
-    //   });
-    // }
- 
-    obtenerHora(hora:string):void{
-      this.dialogRef.close({
-          hora
-      });
-    }
+  async arrayCitas() {
+    const resultado = await this.crud.buscaCitas([
+      { hora: '8:00', fecha: this.fecha },
+      { hora: '9:00', fecha: this.fecha },
+      { hora: '10:00', fecha: this.fecha }
+    ]);
+    console.log(resultado);
+    return resultado;
 
+  }
 
+  // onNoClick(): void {
+  //   this.dialogRef.close({
+  //     food: this.food
+  //   });
+  // }
+
+  obtenerHora(hora: string): void {
+    //this.arrayCitas();
+    console.log('data', this.data);
+    this.dialogRef.close({
+      hora
+    });
+  }
 }

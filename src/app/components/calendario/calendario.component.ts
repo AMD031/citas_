@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarOptions } from '@fullcalendar/angular'
 import { CitasService } from 'src/app/services/citas/citas.service';
@@ -11,27 +11,17 @@ import { Cita } from '../model/cita';
   styleUrls: ['./calendario.component.css']
 })
 export class CalendarioComponent implements OnInit, OnChanges {
+
   hora: string;
   fecha: string;
   citas: Array<any> = [];
+
   calendarOptions: CalendarOptions;
   constructor(public dialog: MatDialog,
-    private crud: CitasService
+    private crud: CitasService,
   ) {
 
   }
- 
-
-
-  // title = 'angular-material-modals';
-
-  // city: string;
-  // name: string;
-  // food_from_modal: string;
-
-
-
-
 
 
   handleDateClick(arg) {
@@ -47,47 +37,64 @@ export class CalendarioComponent implements OnInit, OnChanges {
   openDialog(): void {
     const dialogRef = this.dialog.open(ModalComponent, {
       width: 'auto',
-      //  data: { name: this.name, animal: this.city }
+       data: { fecha: this.fecha}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      //console.log('The dialog was closed');
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        //console.log('The dialog was closed', result);
-        // this.city = result;
-        // this.food_from_modal = result.food;
-        if(result.hora){
+        if (result.hora) {
           this.hora = result.hora;
         }
-     
       }
 
       const cita: Cita = {
         fecha: this.fecha,
         hora: this.hora
       };
-      this.crud.crearCita(cita);
-      this.cargarDatos();
+      console.log(this.hora);
+      this.crud.crearCita(cita).then(resp => {
+        
+       
+        if (resp) {
+          this.citas.push({ title: cita.hora, date: cita.fecha });
+          this.calendarOptions.events = [...this.citas];
+        }
+      });
+
 
     });
   }
 
+  // private async actulizarEventos(cita?: Cita): Promise<any> {
+  //     if (this.citas.length === 0) {
+  //       this.citas = await this.crud.cargarCitas();
+  //     } else if (this.citas.length > 0) {
+  //       if (this.citas) {
+  //         if ( !(await this.crud.buscaCita(cita))) {
+  //           console.log('agregando a la interfaz', cita);
+
+
+  //         }
+  //       }
+  //     }
+
+  // }
 
 
 
-  private async cargarDatos() {
+  private async cargarDatos(): Promise<void> {
     try {
+      //await this.actulizarEventos();
+
+      console.log("llamado");
       this.citas = await this.crud.cargarCitas();
       this.citas = this.citas.map(
         (cita) => ({
           title: cita.hora, date: cita.fecha
-        })
-      )
-   
-      this.calendarOptions.events = this.citas;
-      
+        }));
 
-  
+      this.calendarOptions.events = this.citas;
 
     } catch (error) {
       console.log(error);
@@ -102,20 +109,18 @@ export class CalendarioComponent implements OnInit, OnChanges {
 
       initialView: 'dayGridMonth',
       dateClick: this.handleDateClick.bind(this), // bind is important!
-          events: [
+      events: [
         // { title: '08:00', date: '2020-09-22', color: `${false ? "green" : "red"}` },
         // { title: '09:00', date: '2020-09-22' },
       ]
     };
     this.cargarDatos();
+
   }
 
 
 
   ngOnChanges(changes: any): void {
-
-    console.log("cambio",changes)
-    
   }
 
 
