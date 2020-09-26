@@ -1,6 +1,8 @@
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarOptions } from '@fullcalendar/angular'
+import * as moment from 'moment';
+import { AlertasService } from 'src/app/services/alertas/alertas.service';
 import { CitasService } from 'src/app/services/citas/citas.service';
 import { ModalComponent } from '../modal/modal.component';
 import { Cita } from '../model/cita';
@@ -19,16 +21,32 @@ export class CalendarioComponent implements OnInit, OnChanges {
   calendarOptions: CalendarOptions;
   constructor(public dialog: MatDialog,
     private crud: CitasService,
+    private alerta: AlertasService
   ) {
 
   }
 
 
+  private comprobarFecha(fecha: string) {
+    const diaElegido = moment(this.fecha);
+    const ahora = moment(Date.now()).format('YYYY-MM-DD');
+    return diaElegido.isSameOrAfter(ahora);
+  }
+
   handleDateClick(arg) {
-    //alert('date click! ' + arg.dateStr);
+
+    // alert('date click! ' + arg.dateStr);
     this.fecha = arg.dateStr.toString();
     if (this.fecha) {
-      this.openDialog();
+      console.log(this.fecha);
+
+      if (this.comprobarFecha(this.fecha)) {
+        this.alerta.mostrarCarga('Espere', 'Cargando citas disponibles');
+        this.openDialog();
+      } else {
+        this.alerta.notificacion('No se puede pedir citas de días que ya ha pasado', 'info');
+      }
+
     }
 
 
@@ -37,11 +55,13 @@ export class CalendarioComponent implements OnInit, OnChanges {
   openDialog(): void {
     const dialogRef = this.dialog.open(ModalComponent, {
       width: 'auto',
-       data: { fecha: this.fecha}
+      data: { fecha: this.fecha }
     });
 
 
     dialogRef.afterClosed().subscribe((result) => {
+
+
       if (result) {
         if (result.hora) {
           this.hora = result.hora;
@@ -52,34 +72,25 @@ export class CalendarioComponent implements OnInit, OnChanges {
         fecha: this.fecha,
         hora: this.hora
       };
-      console.log(this.hora);
-      this.crud.crearCita(cita).then(resp => {
-        
-       
-        if (resp) {
-          this.citas.push({ title: cita.hora, date: cita.fecha });
-          this.calendarOptions.events = [...this.citas];
-        }
-      });
+      if( cita.fecha && cita.hora){
+        this.crud.crearCita(cita).then(resp => {
+          if (resp) {
+            this.citas.push({ title: cita.hora, date: cita.fecha });
+            this.calendarOptions.events = [...this.citas];
+            this.alerta.notificacion(`su localizador es: ${resp} `, 'info')
+          }
+        }).catch(
+  
+        )
+
+
+      }
 
 
     });
   }
 
-  // private async actulizarEventos(cita?: Cita): Promise<any> {
-  //     if (this.citas.length === 0) {
-  //       this.citas = await this.crud.cargarCitas();
-  //     } else if (this.citas.length > 0) {
-  //       if (this.citas) {
-  //         if ( !(await this.crud.buscaCita(cita))) {
-  //           console.log('agregando a la interfaz', cita);
 
-
-  //         }
-  //       }
-  //     }
-
-  // }
 
 
 
@@ -95,8 +106,9 @@ export class CalendarioComponent implements OnInit, OnChanges {
         }));
 
       this.calendarOptions.events = this.citas;
-
+      this.alerta.ocultar();
     } catch (error) {
+      this.alerta.ocultar();
       console.log(error);
     }
   }
@@ -113,7 +125,9 @@ export class CalendarioComponent implements OnInit, OnChanges {
         // { title: '08:00', date: '2020-09-22', color: `${false ? "green" : "red"}` },
         // { title: '09:00', date: '2020-09-22' },
       ]
+
     };
+    this.alerta.mostrarCarga('Espere', 'Cargando toda sus citas')
     this.cargarDatos();
 
   }

@@ -1,6 +1,8 @@
 
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { rejects } from 'assert';
+import { resolve } from 'dns';
 import { throwError } from 'rxjs';
 import { Cita } from 'src/app/components/model/cita';
 
@@ -46,30 +48,32 @@ export class CitasService {
 
 
 
-  async crearCita(cita: Cita) {
+  async crearCita(cita: Cita): Promise<any> {
 
-    const uid = localStorage.getItem('uid');
-    if (uid && cita) {
-      try {
-        //console.log((await this.buscaCita(cita)));
-        if ((await this.buscaCita(cita)) === false) {
-          await this.firestore.collection(`citas/${uid}/cita`).add(cita).then(
-            (resp) => {
-              const idr = resp.id;
-              resp.update({ ...cita, id: idr });
-            });
-          //console.log('cita creada');
-          return true;
-        } else {
-          return false;
+    return new Promise(async (resolve, rejects) => {
+      const uid = localStorage.getItem('uid');
+      if (uid && cita) {
+        try {
+          // console.log((await this.buscaCita(cita)));
+          if ((await this.buscaCita(cita)) === false) {
+            await this.firestore.collection(`citas/${uid}/cita`).add(cita).then(
+              (resp) => {
+                const idr = resp.id;
+                resp.update({ ...cita, id: idr });
+                resolve(idr);
+              });
+          };
+
+        } catch (error) {
+          console.log(error);
         }
-
-      } catch (error) {
-
+      } else {
+        return throwError("usuario no logeado");
       }
-    } else {
-      return throwError("usuario no logeado");
-    }
+
+
+    })
+
 
 
   }
@@ -81,7 +85,6 @@ export class CitasService {
     const uid = localStorage.getItem('uid');
     const snap = this.firestore.collection(`citas/${uid}/cita`).get();
     return new Promise((resolve, rejects) => {
-
       snap.forEach(
         (hijo) => {
           const citas = hijo.docs.map((doc) => (
@@ -109,7 +112,7 @@ export class CitasService {
           respuestaPromesa.push(false);
         } else {
           respuestaPromesa.push(true);
-   
+
         }
         resolve(respuestaPromesa);
       })

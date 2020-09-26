@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AlertasService } from 'src/app/services/alertas/alertas.service';
 import { CitasService } from 'src/app/services/citas/citas.service';
 
 @Component({
@@ -15,10 +16,10 @@ export class ModalComponent {
   fecha: string;
   mostrar: boolean[] = [];
   constructor(
+    public alerta: AlertasService ,
     public dialogRef: MatDialogRef<ModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private crud: CitasService) {
     this.fecha = data.fecha;
-     console.log(this.fecha);
     this.arrayCitas().then(
       (array) => {
         this.mostrar = array;
@@ -27,12 +28,14 @@ export class ModalComponent {
   }
 
   async arrayCitas() {
+    
     const resultado = await this.crud.buscaCitas([
       { hora: '8:00', fecha: this.fecha },
       { hora: '9:00', fecha: this.fecha },
       { hora: '10:00', fecha: this.fecha }
     ]);
     console.log(resultado);
+    this.alerta.ocultar();
     return resultado;
 
   }
@@ -49,5 +52,11 @@ export class ModalComponent {
     this.dialogRef.close({
       hora
     });
+  }
+
+  
+  Cancelar(): void {
+    this.data = {};
+    this.dialogRef.close({});
   }
 }

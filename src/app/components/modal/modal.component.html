@@ -53,4 +53,21 @@
   >
     10:00
   </button>
+
+  <button *ngIf=" mostrar[0] || mostrar[1] || mostrar[2]"
+
+  color="primary"
+  mat-raised-button
+  (click)="Cancelar()"
+  >
+   Cancelar
+  </button>
+
+
 </div>
+
+<div  *ngIf=" !mostrar[0] && !mostrar[1] && !mostrar[2]" class="alert alert-danger" role="alert">
+  No hay citas para este dia.
+</div>
+
+
