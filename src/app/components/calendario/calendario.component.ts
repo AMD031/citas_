@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, ViewChild, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CalendarOptions } from '@fullcalendar/angular'
 import * as moment from 'moment';
@@ -6,19 +6,23 @@ import { AlertasService } from 'src/app/services/alertas/alertas.service';
 import { CitasService } from 'src/app/services/citas/citas.service';
 import { ModalComponent } from '../modal/modal.component';
 import { Cita } from '../../model/cita';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-calendario',
   templateUrl: './calendario.component.html',
   styleUrls: ['./calendario.component.css']
 })
-export class CalendarioComponent implements OnInit, OnChanges {
+export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked {
 
   hora: string;
   fecha: string;
   citas: Array<any> = [];
+  citaBorrada: Cita;
+  tmp: Cita;
 
   calendarOptions: CalendarOptions;
+  @ViewChild(NavbarComponent) child: NavbarComponent;
   constructor(
     public dialog: MatDialog,
     private crud: CitasService,
@@ -28,7 +32,9 @@ export class CalendarioComponent implements OnInit, OnChanges {
   }
 
 
-  private comprobarFecha(fecha: string): boolean {
+
+
+  private comprobarFecha(): boolean {
     const diaElegido = moment(this.fecha);
     const ahora = moment(Date.now()).format('YYYY-MM-DD');
     return diaElegido.isSameOrAfter(ahora);
@@ -40,11 +46,11 @@ export class CalendarioComponent implements OnInit, OnChanges {
     this.fecha = arg.dateStr.toString();
     if (this.fecha) {
 
-      if (this.comprobarFecha(this.fecha)) {
+      if (this.comprobarFecha()) {
         this.alerta.mostrarCarga('Espere', 'Cargando citas disponibles');
         this.openDialog();
       } else {
-        this.alerta.notificacion('No se puede pedir citas de días que ya ha pasado', 'info');
+        this.alerta.notificacion('No se puede pedir citas de días que ya han pasado', 'info');
       }
 
     }
@@ -61,8 +67,6 @@ export class CalendarioComponent implements OnInit, OnChanges {
 
     dialogRef.afterClosed().subscribe((result) => {
 
-
-
       if (result?.hora) {
         this.hora = result.hora;
       } else {
@@ -74,25 +78,31 @@ export class CalendarioComponent implements OnInit, OnChanges {
         hora: this.hora
       };
       if (cita.fecha && cita.hora) {
+        this.alerta.mostrarCarga('Espere', 'creando registro');
         this.crud.crearCita(cita).then(resp => {
           if (resp) {
             this.citas.push({ title: cita.hora, date: cita.fecha });
             this.calendarOptions.events = [...this.citas];
+         
             this.alerta.notificacion(`su localizador es: ${resp} `, 'info')
           }
         }).catch(
-          (error) => console.log(error)
+          (error) => {
+            console.log(error);
+            this.alerta.ocultar();
+          }
         );
+        this.alerta.ocultar();
       }
     });
   }
 
   borrarCitaInterfaz(cita: Cita): void {
     if (cita.fecha && cita.hora) {
-      const citasFiltradas = this.citas.filter(
-        (citaI) =>  !(citaI.title ===  cita.hora && citaI.date === cita.fecha)
+      this.citas = this.citas.filter(
+        (citaI) => !(citaI.title === cita.hora && citaI.date === cita.fecha)
       );
-      this.calendarOptions.events = [...citasFiltradas];
+      this.calendarOptions.events = [...this.citas];
     }
 
 
@@ -112,8 +122,8 @@ export class CalendarioComponent implements OnInit, OnChanges {
 
       this.calendarOptions.events = this.citas;
 
-  
-      
+
+
       this.alerta.ocultar();
     } catch (error) {
       this.alerta.ocultar();
@@ -139,7 +149,7 @@ export class CalendarioComponent implements OnInit, OnChanges {
     this.alerta.mostrarCarga('Espere', 'Cargando toda sus citas')
     this.cargarDatos();
 
-   
+
 
 
   }
@@ -147,9 +157,25 @@ export class CalendarioComponent implements OnInit, OnChanges {
 
 
   ngOnChanges(changes: any): void {
+
   }
 
 
+
+  ngAfterViewInit(): void {
+
+
+
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.child.citaDesdeHijo !== this.tmp) {
+      this.tmp = this.child.citaDesdeHijo;
+      this.borrarCitaInterfaz(this.child.citaDesdeHijo);
+    }
+
+
+  }
 
 
 }

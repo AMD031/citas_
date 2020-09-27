@@ -15,7 +15,7 @@ export class AlertasService {
    * @param icono los valores que puede tormar son: success, 	error, 	warning,	info, question
    */
   notificacion(mensaje: string, icono: string): void {
-    Swal.fire( {title: mensaje, icon: icono});
+    Swal.fire({ title: mensaje, icon: icono });
   }
 
   mostrarCarga(titulo: string, html: string): void {
@@ -32,6 +32,36 @@ export class AlertasService {
 
   ocultar(): void {
     Swal.close();
+  }
+
+
+  alertaBorrar() {
+
+    return new Promise((resolve, reject) => {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'la cita será borrada',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, hazlo'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire(
+            'Boorado!',
+            'Tu cita ha sido borrada.',
+            'success'
+          );
+          resolve(true);
+        }else{
+          resolve(false);
+        }
+      });
+
+    })
+
+
   }
 
 

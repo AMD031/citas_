@@ -173,19 +173,26 @@ export class CitasService {
   }
 
 
-  async borrarCita(id: string): Promise<void> {
-    const uid = localStorage.getItem('uid');
-    console.log('uid', uid);
+  async borrarCita(id: string): Promise<any> {
+    return new Promise( async (resolve, reject) => {
+      const uid = localStorage.getItem('uid');
+      console.log('uid', uid);
+      const valor = (await this.firestore.firestore.collection(`citas/${uid}/cita`).doc(id.trim()).get()).data();
 
-    this.firestore.firestore.collection(`citas/${uid}/cita`).doc(id.trim()).delete().then( () => {
-      console.log('borrado');
-    }).catch((error) => {
-      console.error('Error', error);
+      this.firestore.firestore.collection(`citas/${uid}/cita`).doc(id.trim()).delete().then(() => {
+        resolve(valor);
+      }).catch((error) => {
+        console.error('Error', error);
+      });
+
+
     });
+
+
 
   }
 
-  
+
 
 
 }
