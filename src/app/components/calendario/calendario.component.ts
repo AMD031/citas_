@@ -34,8 +34,8 @@ export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, Af
 
 
 
-  private comprobarFecha(): boolean {
-    const diaElegido = moment(this.fecha);
+  private comprobarFecha(fecha:string): boolean {
+    const diaElegido = moment(fecha);
     const ahora = moment(Date.now()).format('YYYY-MM-DD');
     return diaElegido.isSameOrAfter(ahora);
   }
@@ -46,7 +46,7 @@ export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, Af
     this.fecha = arg.dateStr.toString();
     if (this.fecha) {
 
-      if (this.comprobarFecha()) {
+      if (this.comprobarFecha(this.fecha)) {
         this.alerta.mostrarCarga('Espere', 'Cargando citas disponibles');
         this.openDialog();
       } else {
@@ -78,21 +78,20 @@ export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, Af
         hora: this.hora
       };
       if (cita.fecha && cita.hora) {
-        this.alerta.mostrarCarga('Espere', 'creando registro');
+         //this.alerta.mostrarCarga('Espere', 'Creando registro');
         this.crud.crearCita(cita).then(resp => {
           if (resp) {
             this.citas.push({ title: cita.hora, date: cita.fecha });
             this.calendarOptions.events = [...this.citas];
-         
             this.alerta.notificacion(`su localizador es: ${resp} `, 'info')
           }
         }).catch(
           (error) => {
             console.log(error);
-            this.alerta.ocultar();
+            //this.alerta.ocultar();
           }
         );
-        this.alerta.ocultar();
+        //this.alerta.ocultar();
       }
     });
   }
@@ -117,7 +116,7 @@ export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, Af
       this.citas = await this.crud.cargarCitas();
       this.citas = this.citas.map(
         (cita) => ({
-          title: cita.hora, date: cita.fecha
+          title: cita.hora, date: cita.fecha, color: `${ this.comprobarFecha(cita.fecha) ? '#1559a8' : '#c10622'}`
         }));
 
       this.calendarOptions.events = this.citas;
@@ -143,7 +142,8 @@ export class CalendarioComponent implements OnInit, OnChanges, AfterViewInit, Af
         // { title: '08:00', date: '2020-09-22', color: `${false ? "green" : "red"}` },
         // { title: '09:00', date: '2020-09-22' },
       ],
-      locale: 'es'
+      locale: 'es',
+      eventColor: '#1559a8',
 
     };
     this.alerta.mostrarCarga('Espere', 'Cargando toda sus citas')

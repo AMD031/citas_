@@ -24,7 +24,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { CitasService } from './services/citas/citas.service';
+import { AuthGuard } from './services/guards/authguard/auth-guard.service';
+
 
 
 FullCalendarModule.registerPlugins([
@@ -56,7 +57,7 @@ FullCalendarModule.registerPlugins([
     MatButtonModule
 
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 

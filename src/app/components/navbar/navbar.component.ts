@@ -28,7 +28,7 @@ export class NavbarComponent implements OnInit {
       const { localizador } = valores.value;
       if (this.alerta.alertaBorrar()) {
         try {
-          this.alerta.mostrarCarga('Espere', ' realizando operación');
+          this.alerta.mostrarCarga('Espere', ' Realizando operación');
           this.citaDesdeHijo = await this.crud.borrarCita(localizador);
           this.alerta.ocultar();
         } catch (error) {
