@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import { AlertasService } from 'src/app/services/alertas/alertas.service';
 import { CitasService } from 'src/app/services/citas/citas.service';
 import { ModalComponent } from '../modal/modal.component';
-import { Cita } from '../model/cita';
+import { Cita } from '../../model/cita';
 
 @Component({
   selector: 'app-calendario',
@@ -19,7 +19,8 @@ export class CalendarioComponent implements OnInit, OnChanges {
   citas: Array<any> = [];
 
   calendarOptions: CalendarOptions;
-  constructor(public dialog: MatDialog,
+  constructor(
+    public dialog: MatDialog,
     private crud: CitasService,
     private alerta: AlertasService
   ) {
@@ -27,18 +28,17 @@ export class CalendarioComponent implements OnInit, OnChanges {
   }
 
 
-  private comprobarFecha(fecha: string) {
+  private comprobarFecha(fecha: string): boolean {
     const diaElegido = moment(this.fecha);
     const ahora = moment(Date.now()).format('YYYY-MM-DD');
     return diaElegido.isSameOrAfter(ahora);
   }
 
-  handleDateClick(arg) {
+  handleDateClick(arg): void {
 
     // alert('date click! ' + arg.dateStr);
     this.fecha = arg.dateStr.toString();
     if (this.fecha) {
-      console.log(this.fecha);
 
       if (this.comprobarFecha(this.fecha)) {
         this.alerta.mostrarCarga('Espere', 'Cargando citas disponibles');
@@ -62,17 +62,18 @@ export class CalendarioComponent implements OnInit, OnChanges {
     dialogRef.afterClosed().subscribe((result) => {
 
 
-      if (result) {
-        if (result.hora) {
-          this.hora = result.hora;
-        }
+
+      if (result?.hora) {
+        this.hora = result.hora;
+      } else {
+        this.hora = null;
       }
 
       const cita: Cita = {
         fecha: this.fecha,
         hora: this.hora
       };
-      if( cita.fecha && cita.hora){
+      if (cita.fecha && cita.hora) {
         this.crud.crearCita(cita).then(resp => {
           if (resp) {
             this.citas.push({ title: cita.hora, date: cita.fecha });
@@ -80,25 +81,29 @@ export class CalendarioComponent implements OnInit, OnChanges {
             this.alerta.notificacion(`su localizador es: ${resp} `, 'info')
           }
         }).catch(
-  
-        )
-
-
+          (error) => console.log(error)
+        );
       }
-
-
     });
   }
 
+  borrarCitaInterfaz(cita: Cita): void {
+    if (cita.fecha && cita.hora) {
+      const citasFiltradas = this.citas.filter(
+        (citaI) =>  !(citaI.title ===  cita.hora && citaI.date === cita.fecha)
+      );
+      this.calendarOptions.events = [...citasFiltradas];
+    }
+
+
+  }
 
 
 
 
   private async cargarDatos(): Promise<void> {
     try {
-      //await this.actulizarEventos();
-
-      console.log("llamado");
+      // await this.actulizarEventos();
       this.citas = await this.crud.cargarCitas();
       this.citas = this.citas.map(
         (cita) => ({
@@ -106,6 +111,9 @@ export class CalendarioComponent implements OnInit, OnChanges {
         }));
 
       this.calendarOptions.events = this.citas;
+
+  
+      
       this.alerta.ocultar();
     } catch (error) {
       this.alerta.ocultar();
@@ -124,11 +132,15 @@ export class CalendarioComponent implements OnInit, OnChanges {
       events: [
         // { title: '08:00', date: '2020-09-22', color: `${false ? "green" : "red"}` },
         // { title: '09:00', date: '2020-09-22' },
-      ]
+      ],
+      locale: 'es'
 
     };
     this.alerta.mostrarCarga('Espere', 'Cargando toda sus citas')
     this.cargarDatos();
+
+   
+
 
   }
 

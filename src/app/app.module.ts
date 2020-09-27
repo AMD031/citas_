@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SigninComponent } from './components/signin/signin.component';
-import {ModalComponent} from './components/modal/modal.component'
+import { ModalComponent } from './components/modal/modal.component'
 import { CalendarioComponent } from './components/calendario/calendario.component';
 import { AngularFireModule } from '@angular/fire';
 
@@ -13,8 +13,8 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 
-import { FullCalendarModule } from '@fullcalendar/angular'; 
-import dayGridPlugin from '@fullcalendar/daygrid'; 
+import { FullCalendarModule } from '@fullcalendar/angular';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -23,8 +23,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { CitasService } from './services/citas/citas.service';
 
-FullCalendarModule.registerPlugins([ 
+
+FullCalendarModule.registerPlugins([
   dayGridPlugin,
   interactionPlugin
 ]);
@@ -34,7 +37,8 @@ FullCalendarModule.registerPlugins([
     AppComponent,
     SigninComponent,
     CalendarioComponent,
-    ModalComponent
+    ModalComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,13 +48,13 @@ FullCalendarModule.registerPlugins([
     AngularFireAuthModule,
     FullCalendarModule,
     BrowserAnimationsModule,
-    
+
     FormsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule
-    
+
   ],
   providers: [],
   bootstrap: [AppComponent]

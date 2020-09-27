@@ -12,11 +12,11 @@ export class ModalComponent {
 
   //  food: string;
 
-  
+
   fecha: string;
   mostrar: boolean[] = [];
   constructor(
-    public alerta: AlertasService ,
+    public alerta: AlertasService,
     public dialogRef: MatDialogRef<ModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private crud: CitasService) {
     this.fecha = data.fecha;
@@ -27,8 +27,8 @@ export class ModalComponent {
     )
   }
 
-  async arrayCitas() {
-    
+  async arrayCitas(): Promise<boolean[]> {
+
     const resultado = await this.crud.buscaCitas([
       { hora: '8:00', fecha: this.fecha },
       { hora: '9:00', fecha: this.fecha },
@@ -54,9 +54,11 @@ export class ModalComponent {
     });
   }
 
-  
+
   Cancelar(): void {
-    this.data = {};
-    this.dialogRef.close({});
+  
+    this.dialogRef.close({
+      hora : null
+    });
   }
 }

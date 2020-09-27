@@ -1,10 +1,9 @@
 
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { rejects } from 'assert';
-import { resolve } from 'dns';
-import { throwError } from 'rxjs';
-import { Cita } from 'src/app/components/model/cita';
+import { storage } from 'firebase';
+import { map } from 'jquery';
+import { Cita } from 'src/app/model/cita';
 
 
 @Injectable({
@@ -68,11 +67,9 @@ export class CitasService {
           console.log(error);
         }
       } else {
-        return throwError("usuario no logeado");
+        throw new Error('usuario no logeado');
       }
-
-
-    })
+    });
 
 
 
@@ -104,7 +101,7 @@ export class CitasService {
   async buscaCitas(citas: Array<Cita>): Promise<Array<boolean>> {
     return new Promise(async (resolve, reject) => {
       const resultado = await this.todasLasCitas();
-      let respuestaPromesa: Array<boolean> = [];
+      const respuestaPromesa: Array<boolean> = [];
 
       citas.forEach((cita) => {
         const resul = resultado.filter((citaI) => citaI.hora === cita.hora && citaI.fecha === cita.fecha);
@@ -112,7 +109,6 @@ export class CitasService {
           respuestaPromesa.push(false);
         } else {
           respuestaPromesa.push(true);
-
         }
         resolve(respuestaPromesa);
       })
@@ -177,22 +173,32 @@ export class CitasService {
   }
 
 
+  async borrarCita(id: string): Promise<void> {
+    const uid = localStorage.getItem('uid');
+    console.log('uid', uid);
 
+    this.firestore.firestore.collection(`citas/${uid}/cita`).doc(id.trim()).delete().then( () => {
+      console.log('borrado');
+    }).catch((error) => {
+      console.error('Error', error);
+    });
 
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
