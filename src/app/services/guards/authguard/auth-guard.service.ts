@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRoute, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { auth } from 'firebase';
 import { LoginService } from '../../auth/login.service';
 
 @Injectable()
@@ -19,4 +20,9 @@ export class AuthGuard implements CanActivate {
 
     return true;
   }
+
+ 
+
+
+
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase/app';
-
+import { Router} from '@angular/router';
 
 
 
@@ -10,7 +10,10 @@ import * as firebase from 'firebase/app';
 })
 export class LoginService {
 
-  constructor(public auth: AngularFireAuth) { }
+  constructor(
+    public auth: AngularFireAuth,
+    public router: Router
+    ) { }
 
   GoogleLogin(): Promise<any> {
 
@@ -32,6 +35,13 @@ export class LoginService {
     })
 
 
+  }
+
+
+  logout():void {
+    this.auth.signOut();
+    localStorage.removeItem('uid');
+    this.router.navigate(['/login']);   
   }
 
 }
